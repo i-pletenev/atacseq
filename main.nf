@@ -1179,7 +1179,7 @@ process MERGED_LIB_GENRICH {
 	tuple val(name), path(bam) from ch_mlib_rm_orphan_bam_genrich	
 	
 	"""
-	samtools sort -n -@ $task.cpus ${bam[0]} | Genrich -j -t - -o ${name}.narrowPeak
+	samtools sort -n -@ $task.cpus -O SAM ${bam[0]} | Genrich -j -t - -o ${name}.narrowPeak
 	"""
 }
 
