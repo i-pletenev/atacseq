@@ -840,6 +840,7 @@ if (params.single_end) {
         .into { ch_mlib_rm_orphan_bam_metrics;
                 ch_mlib_rm_orphan_bam_bigwig;
                 ch_mlib_rm_orphan_bam_macs;
+		ch_mlib_rm_orphan_bam_genrich;
                 ch_mlib_rm_orphan_bam_plotfingerprint;
                 ch_mlib_rm_orphan_bam_mrep;
                 ch_mlib_name_bam_mlib_counts;
@@ -873,6 +874,7 @@ if (params.single_end) {
         tuple val(name), path('*.sorted.{bam,bam.bai}') into ch_mlib_rm_orphan_bam_metrics,
                                                              ch_mlib_rm_orphan_bam_bigwig,
                                                              ch_mlib_rm_orphan_bam_macs,
+                                                             ch_mlib_rm_orphan_bam_genrich,
                                                              ch_mlib_rm_orphan_bam_plotfingerprint,
                                                              ch_mlib_rm_orphan_bam_mrep
         tuple val(name), path("${prefix}.bam") into ch_mlib_name_bam_mlib_counts,
@@ -1161,6 +1163,24 @@ process MERGED_LIB_MACS2 {
 
     find * -type f -name "*.${PEAK_TYPE}" -exec echo -e "bwa/mergedLibrary/macs/${PEAK_TYPE}/"{}"\\t0,0,178" \\; > ${prefix}_peaks.igv.txt
     """
+}
+
+/* 
+ * STEP 6.1.1 Call peaks with Genrich
+ */
+process MERGED_LIB_GENRICH {
+	tag "$name"
+	publishDir "${params.outdir}/bwa/mergedLibrary/genrich/narrowPeak", mode: params.publish_dir_mode
+	
+	when:
+	params.genrich
+
+	input:
+	tuple val(name), path(bam) from ch_mlib_rm_orphan_bam_genrich	
+	
+	"""
+	Genrich -j -t ${bam[0]}  -o ${name}.narrowPeak
+	"""
 }
 
 /*
